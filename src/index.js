@@ -11,12 +11,12 @@ const https_port = 3443;
 const ip = '127.0.1.2';
 
 const KEY_DIR = process.env.KEY_DIR || 'keys';
-const CRT = process.env.CRT_NAME || 'local.auth.crt';
+const CRT = process.env.CRT_NAME || 'resc.acme.com.crt';
 const CA_CRT = process.env.CA_CRT_NAME || 'ca.crt';
 const HOSTNAME = process.env.HOSTNAME || 'resc.acme.com';
 
 const options = {
-    key: fs.readFileSync(`${__dirname}/../${KEY_DIR}/private.pem`),
+    key: fs.readFileSync(`${__dirname}/../${KEY_DIR}/resc.acme.com.pem`),
     cert: fs.readFileSync(`${__dirname}/../${KEY_DIR}/${CRT}`),
     requestCert: true,
     rejectUnauthorized: false,
