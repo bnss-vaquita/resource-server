@@ -19,4 +19,15 @@ exports.verify_file = (hash, payload) => {
     return hash === digest;
 }
 
+exports.get_token = (req) => {
+    if (req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Bearer') { // Authorization: Bearer g1jipjgi1ifjioj
+        // Handle token presented as a Bearer token in the Authorization header
+        return req.headers.authorization.split(' ')[1];
+    }
+    else {
+        return null;
+    }
+
+};
+
 

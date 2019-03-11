@@ -49,7 +49,7 @@ const download = (dest, filename) => {
     const basepath = `${__dirname}/../resources/`;
     const path = basepath + dest + filename;
     if (fs.existsSync(path)) {
-        return fs.readFileSync(path)
+        return fs.readFileSync(path, "utf8")
     }
     throw "File not found";
 };
@@ -94,7 +94,7 @@ app.use(bodyParser.json());
 
 app.get('/:userId/pubkey', (req, res) => {
     const id = req.params.userId;
-    const token = req.query.token;
+    const token = auth.get_token(req);
 
     if (req.client.authorized) {
         const options = {
@@ -146,7 +146,7 @@ app.put('/:userId/pubkey', (req, res) => {
 
 app.get('/:userId/files', (req, res) => {
     const id = req.params.userId;
-    const token = req.query.token;
+    const token = auth.get_token(req);
 
     if (req.client.authorized) {
         const options = {
@@ -175,7 +175,7 @@ app.get('/:userId/files', (req, res) => {
 app.get('/:userId/files/:filename', (req, res) => {
     const id = req.params.userId;
     const filename = req.params.filename;
-    const token = req.query.token;
+    const token = auth.get_token(req);
 
     if (req.client.authorized) {
         const options = {
@@ -242,7 +242,7 @@ app.put('/:userId/files/:filename', (req, res) => {
  */
 app.get('/:userId/key', (req, res) => {
     const id = req.params.userId;
-    const token = req.query.token;
+    const token = auth.get_token(req);
 
     if (req.client.authorized) {
         const options = {
