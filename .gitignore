@@ -1,0 +1,5 @@
+/.blackbox/pubring.gpg~
+/.blackbox/pubring.kbx~
+/.blackbox/secring.gpg
+node_modules/
+/keys/resc.acme.com.pem
