@@ -109,7 +109,7 @@ app.get('/:userId/pubkey', (req, res) => {
         }
         catch(error) {
             res.status(400)
-                .send(error);
+                .send(`${error}\n`);
         }
     }
     else {
@@ -162,7 +162,7 @@ app.get('/:userId/files', (req, res) => {
         }
         catch(error) {
             res.status(400)
-                .send(error);
+                .send(`${error}\n`);
         }
     }
     else {
@@ -191,7 +191,7 @@ app.get('/:userId/files/:filename', (req, res) => {
         }
         catch(error) {
             res.status(400)
-                .send(error);
+                .send(`${error}\n`);
         }
     }
     else {
@@ -258,7 +258,7 @@ app.get('/:userId/key', (req, res) => {
         }
         catch(error) {
             res.status(400)
-                .send(error);
+                .send(`${error}\n`);
         }
     }
     else {
