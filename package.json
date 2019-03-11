@@ -1,0 +1,16 @@
+{
+  "name": "resource-server",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:bnss-vaquita/resource-server.git",
+  "author": "Kristian Alvarez Jörgensen <krijor@kth.se>",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.16.4",
+    "jsonwebtoken": "^8.5.0",
+    "mariadb": "^2.0.3"
+  },
+  "scripts": {
+    "server": "node src/index.js"
+  }
+}
