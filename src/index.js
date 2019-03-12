@@ -11,12 +11,12 @@ const https_port = 3443;
 const ip = '127.0.1.2';
 
 const KEY_DIR = process.env.KEY_DIR || 'keys';
-const CRT = process.env.CRT_NAME || 'resc.acme.com.crt';
+const CRT = process.env.CRT_NAME || 'rs.acme.com.crt';
 const CA_CRT = process.env.CA_CRT_NAME || 'ca.crt';
-const HOSTNAME = process.env.HOSTNAME || 'resc.acme.com';
+const HOSTNAME = process.env.HOSTNAME || 'rs.acme.com';
 
 const options = {
-    key: fs.readFileSync(`${__dirname}/../${KEY_DIR}/resc.acme.com.pem`),
+    key: fs.readFileSync(`${__dirname}/../${KEY_DIR}/rs.acme.com.pem`),
     cert: fs.readFileSync(`${__dirname}/../${KEY_DIR}/${CRT}`),
     requestCert: true,
     rejectUnauthorized: false,
@@ -96,25 +96,19 @@ app.get('/:userId/pubkey', (req, res) => {
     const id = req.params.userId;
     const token = auth.get_token(req);
 
-    if (req.client.authorized) {
-        const options = {
-            aud: HOSTNAME,
-            issuer: "auth.acme.com"
-        };
-        try {
-            auth.verify_token(token, options);
-            const key = download('pubkeys/', id);
-            res.setHeader('Content-Type', 'application/json');
-            res.send({key:key});
-        }
-        catch(error) {
-            res.status(400)
-                .send(`${error}\n`);
-        }
+    const options = {
+        aud: HOSTNAME,
+        issuer: "auth.acme.com"
+    };
+    try {
+        auth.verify_token(token, options);
+        const key = download('pubkeys/', id);
+        res.setHeader('Content-Type', 'application/json');
+        res.send({key:key});
     }
-    else {
+    catch(error) {
         res.status(400)
-            .send("Unauthorized\n");
+            .send(`${error}\n`);
     }
 });
 
@@ -125,7 +119,6 @@ app.get('/:userId/pubkey', (req, res) => {
 app.put('/:userId/pubkey', (req, res) => {
     const id = req.params.userId;
 
-    if (req.client.authorized) {
         const token = req.body.token;
         const payload = req.body.file;
         const options = {
@@ -137,39 +130,27 @@ app.put('/:userId/pubkey', (req, res) => {
         upload_handler(req, res, () =>
             upload(payload,'pubkeys/', id)
         );
-    }
-    else {
-        res.status(400)
-            .send("Unauthorized\n");
-    }
 });
 
 app.get('/:userId/files', (req, res) => {
     const id = req.params.userId;
     const token = auth.get_token(req);
 
-    if (req.client.authorized) {
-        const options = {
-            aud: HOSTNAME,
-            issuer: "auth.acme.com",
-            subject: id
-        };
-        try {
-            auth.verify_token(token, options);
-            const files = listdir(`files/${id}`);
-            res.setHeader('Content-Type', 'application/json');
-            res.send(files);
-        }
-        catch(error) {
-            res.status(400)
-                .send(`${error}\n`);
-        }
+    const options = {
+        aud: HOSTNAME,
+        issuer: "auth.acme.com",
+        subject: id
+    };
+    try {
+        auth.verify_token(token, options);
+        const files = listdir(`files/${id}`);
+        res.setHeader('Content-Type', 'application/json');
+        res.send(files);
     }
-    else {
+    catch(error) {
         res.status(400)
-            .send("Unauthorized\n");
+            .send(`${error}\n`);
     }
-
 });
 
 app.get('/:userId/files/:filename', (req, res) => {
@@ -177,26 +158,20 @@ app.get('/:userId/files/:filename', (req, res) => {
     const filename = req.params.filename;
     const token = auth.get_token(req);
 
-    if (req.client.authorized) {
-        const options = {
-            aud: HOSTNAME,
-            issuer: "auth.acme.com",
-            subject: id
-        };
-        try {
-            auth.verify_token(token, options);
-            const file = download(`files/${id}/`, filename);
-            res.setHeader('Content-Type', 'application/json');
-            res.send({file:file});
-        }
-        catch(error) {
-            res.status(400)
-                .send(`${error}\n`);
-        }
+    const options = {
+        aud: HOSTNAME,
+        issuer: "auth.acme.com",
+        subject: id
+    };
+    try {
+        auth.verify_token(token, options);
+        const file = download(`files/${id}/`, filename);
+        res.setHeader('Content-Type', 'application/json');
+        res.send({file:file});
     }
-    else {
+    catch(error) {
         res.status(400)
-            .send("Unauthorized\n");
+            .send(`${error}\n`);
     }
 });
 
@@ -210,29 +185,23 @@ app.put('/:userId/files/:filename', (req, res) => {
     const id = req.params.userId;
     const filename = req.params.filename;
 
-    if (req.client.authorized) {
-        const token = req.body.token;
-        const payload = req.body.file;
-        const options = {
-            aud: HOSTNAME,
-            issuer: "auth.acme.com",
-        }
-
-        const d_token = auth.decode_token(token);
-
-        if (d_token.sub != id) {
-            upload_handler(res, options, () =>
-                upload(payload,`files/${id}/`, filename, false)
-            );
-        } else {
-            upload_handler(res, options, () =>
-                upload(payload,`files/${id}/`, filename)
-            );
-        }
+    const token = req.body.token;
+    const payload = req.body.file;
+    const options = {
+        aud: HOSTNAME,
+        issuer: "auth.acme.com",
     }
-    else {
-        res.status(400)
-            .send("Unauthorized\n");
+
+    const d_token = auth.decode_token(token);
+
+    if (d_token.sub != id) {
+        upload_handler(res, options, () =>
+            upload(payload,`files/${id}/`, filename, false)
+        );
+    } else {
+        upload_handler(res, options, () =>
+            upload(payload,`files/${id}/`, filename)
+        );
     }
 });
 
@@ -244,26 +213,20 @@ app.get('/:userId/key', (req, res) => {
     const id = req.params.userId;
     const token = auth.get_token(req);
 
-    if (req.client.authorized) {
-        const options = {
-            aud: HOSTNAME,
-            issuer: "auth.acme.com",
-            subject: id
-        };
-        try {
-            auth.verify_token(token, options);
-            const key = download('keys/', id);
-            res.setHeader('Content-Type', 'application/json');
-            res.send({key:key});
-        }
-        catch(error) {
-            res.status(400)
-                .send(`${error}\n`);
-        }
+    const options = {
+        aud: HOSTNAME,
+        issuer: "auth.acme.com",
+        subject: id
+    };
+    try {
+        auth.verify_token(token, options);
+        const key = download('keys/', id);
+        res.setHeader('Content-Type', 'application/json');
+        res.send({key:key});
     }
-    else {
+    catch(error) {
         res.status(400)
-            .send("Unauthorized\n");
+            .send(`${error}\n`);
     }
 
 });
@@ -275,22 +238,16 @@ app.get('/:userId/key', (req, res) => {
 app.put('/:userId/key', (req, res) => {
     const id = req.params.userId;
 
-    if (req.client.authorized) {
-        const token = req.body.token;
-        const payload = req.body.file;
-        const options = {
-            aud: HOSTNAME,
-            issuer: "auth.acme.com",
-            subject: id
-        }
-        upload_handler(req, res, () =>
-            upload(payload,'keys/', id)
-        );
+    const token = req.body.token;
+    const payload = req.body.file;
+    const options = {
+        aud: HOSTNAME,
+        issuer: "auth.acme.com",
+        subject: id
     }
-    else {
-        res.status(400)
-            .send("Unauthorized\n");
-    }
+    upload_handler(req, res, () =>
+        upload(payload,'keys/', id)
+    );
 });
 
 app.listen(http_port, ip, () => console.log(`HTTP on ${ip}:${http_port}`));
