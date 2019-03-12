@@ -3,3 +3,4 @@
 /.blackbox/secring.gpg
 node_modules/
 /keys/resc.acme.com.pem
+/keys/rs.acme.com.pem
