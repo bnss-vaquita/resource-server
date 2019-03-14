@@ -6,9 +6,9 @@ const bodyParser = require('body-parser');
 const auth = require('./auth');
 
 const app = express();
-const http_port = 3000;
-const https_port = 3443;
-const ip = '127.0.1.2';
+const ip = process.env.IP || '127.0.1.2';
+const http_port = process.env.HTTP_PORT || 3000;
+const https_port = process.env.HTTPS_PORT || 3443;
 
 const KEY_DIR = process.env.KEY_DIR || 'keys';
 const CRT = process.env.CRT_NAME || 'rs.acme.com.crt';
@@ -70,11 +70,8 @@ const upload_handler = (token, payload, options, onSuccess, error) => {
     console.log("Uploading a file");
     try {
         let decoded_token = auth.verify_token(token, options);
-        console.log(decoded_token);
         const hash = decoded_token.payload.filehash;
-        console.log(hash);
         const correct = auth.verify_file(hash, payload);
-        console.log(correct);
         if (correct) {
             onSuccess();
         }
