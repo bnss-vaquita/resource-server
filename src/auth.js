@@ -10,8 +10,8 @@ exports.verify_token = (token, options = {}) => {
     return jwt.verify(token, pub_key, options);
 }
 
-exports.decode_token =(token, options = {}) => {
-    return jwt.decode(token, pub_key, options);
+exports.decode_token = (token) => {
+    return jwt.decode(token);
 }
 
 exports.verify_file = (hash, payload) => {

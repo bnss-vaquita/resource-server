@@ -66,25 +66,26 @@ const listdir = (dest) => {
 /**
  * Handle uploaded files
  */
-const upload_handler = (res, options, onSuccess) => {
+const upload_handler = (token, payload, options, onSuccess, error) => {
+    console.log("Uploading a file");
     try {
         let decoded_token = auth.verify_token(token, options);
+        console.log(decoded_token);
         const hash = decoded_token.payload.filehash;
+        console.log(hash);
         const correct = auth.verify_file(hash, payload);
+        console.log(correct);
         if (correct) {
             onSuccess();
-            res.send();
         }
         else {
-            res.status(400)
-                .send("Invalid file sha \n");
+            error("Invalid file sha");
         }
     }
 
     catch(error) {
         console.log(error);
-        res.status(400)
-            .send("Invalid Token\n");
+        error("Invalid Token\n");
     }
 }
 
@@ -97,7 +98,7 @@ app.get('/:userId/pubkey', (req, res) => {
     const token = auth.get_token(req);
 
     const options = {
-        aud: HOSTNAME,
+        audience: HOSTNAME,
         issuer: "auth.acme.com"
     };
     try {
@@ -118,18 +119,21 @@ app.get('/:userId/pubkey', (req, res) => {
  */
 app.put('/:userId/pubkey', (req, res) => {
     const id = req.params.userId;
+    const token = req.body.token;
+    const payload = req.body.file;
+    const options = {
+        audience: HOSTNAME,
+        issuer: "auth.acme.com",
+        subject: id
+    }
 
-        const token = req.body.token;
-        const payload = req.body.file;
-        const options = {
-            aud: HOSTNAME,
-            issuer: "auth.acme.com",
-            subject: id
-        }
-
-        upload_handler(req, res, () =>
-            upload(payload,'pubkeys/', id)
-        );
+    upload_handler(
+        token,
+        payload,
+        options,
+        () => { upload(payload,'pubkeys/', id); res.send()},
+        (error) => res.status(400).send(error)
+    );
 });
 
 app.get('/:userId/files', (req, res) => {
@@ -137,7 +141,7 @@ app.get('/:userId/files', (req, res) => {
     const token = auth.get_token(req);
 
     const options = {
-        aud: HOSTNAME,
+        audience: HOSTNAME,
         issuer: "auth.acme.com",
         subject: id
     };
@@ -159,7 +163,7 @@ app.get('/:userId/files/:filename', (req, res) => {
     const token = auth.get_token(req);
 
     const options = {
-        aud: HOSTNAME,
+        audience: HOSTNAME,
         issuer: "auth.acme.com",
         subject: id
     };
@@ -184,24 +188,33 @@ app.get('/:userId/files/:filename', (req, res) => {
 app.put('/:userId/files/:filename', (req, res) => {
     const id = req.params.userId;
     const filename = req.params.filename;
-
     const token = req.body.token;
     const payload = req.body.file;
+
     const options = {
-        aud: HOSTNAME,
+        audience: HOSTNAME,
         issuer: "auth.acme.com",
     }
 
     const d_token = auth.decode_token(token);
 
     if (d_token.sub != id) {
-        upload_handler(res, options, () =>
-            upload(payload,`files/${id}/`, filename, false)
+        upload_handler(
+            token,
+            payload,
+            options,
+            () => { upload(payload,`files/${id}/`, filename, false); res.send()},
+            (error) => res.status(400).send(error)
         );
     } else {
-        upload_handler(res, options, () =>
-            upload(payload,`files/${id}/`, filename)
+        upload_handler(
+            token,
+            payload,
+            options,
+            () => { upload(payload,`files/${id}/`, filename); res.send() },
+            (error) => res.status(400).send(error)
         );
+
     }
 });
 
@@ -214,7 +227,7 @@ app.get('/:userId/key', (req, res) => {
     const token = auth.get_token(req);
 
     const options = {
-        aud: HOSTNAME,
+        audience: HOSTNAME,
         issuer: "auth.acme.com",
         subject: id
     };
@@ -241,12 +254,16 @@ app.put('/:userId/key', (req, res) => {
     const token = req.body.token;
     const payload = req.body.file;
     const options = {
-        aud: HOSTNAME,
+        audience: HOSTNAME,
         issuer: "auth.acme.com",
         subject: id
     }
-    upload_handler(req, res, () =>
-        upload(payload,'keys/', id)
+    upload_handler(
+        token,
+        payload,
+        options,
+        () => {upload(payload,'keys/', id); res.send()},
+        error => res.status(400).send(error)
     );
 });
 
