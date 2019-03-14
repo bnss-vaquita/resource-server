@@ -88,7 +88,7 @@ const upload_handler = (token, payload, options, onSuccess, error) => {
 
 
 app.use(requireHTTPS);
-app.use(bodyParser.json());
+app.use(bodyParser.json({limit:"50mb"}));
 
 app.get('/:userId/pubkey', (req, res) => {
     const id = req.params.userId;
